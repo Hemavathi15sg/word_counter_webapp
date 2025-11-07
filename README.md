@@ -1,77 +1,112 @@
-# word_counter_webapp
+# Word Counter WebApp
 
-### Introduction
+## Overview
 
-This is a simple Flask web application that counts the number of words in an uploaded text file. Here's a breakdown of the two main files:
+**Word Counter WebApp** is a simple and interactive Flask-based web application that enables users to upload `.txt` files and receive a word count of the uploaded document instantly. It’s designed for educational purposes, demonstrating file upload handling, Flask session management, and basic rendering logic.
 
-**app.py:**
+---
 
-- It imports necessary modules and creates a Flask application instance.
-- A secret key is generated for session management.
-- The `home()` function is the main route handler for both GET and POST requests to the root ('/') URL.
-    - For a GET request, it simply renders the 'index.html' template with no word count.
-    - For a POST request, it checks if a file has been uploaded.      
-      - If no file is uploaded or the file is not a `.txt` file, it redirects back to the page with a flash message.
-      - If a `.txt` file is uploaded, it reads the content, counts the words, and renders the 'index.html' template with the word count.      
-- If the script is run directly, it starts the Flask development server.
+## Features
 
-**index.html:**
+- **File Upload:** Securely upload `.txt` files for word counting.
+- **Word Counting:** Automatically counts words in the uploaded file and displays the result.
+- **User Feedback:** Error notifications (flash messages) for invalid uploads.
+- **Simple Interface:** Clean, minimal HTML interface for ease of use.
 
-- This is a simple HTML file used as a template for the Flask application.
-- It includes a form for file upload that posts to the root ('/') URL.
-- If there are any flash messages (such as error messages), they are displayed in an unordered list.
-- If a word count is provided (i.e., not None), it displays the count.
+---
 
-  
-In summary, this application allows users to upload a `.txt` file, and it will count and display the number of words in that file.
+## Architecture
+
+### `app.py`
+- Flask application setup and route definitions.
+- Handles GET (page render) and POST (file upload and processing) requests at `'/'`.
+- Manages session, file validation, and word counting logic.
+- Displays flash messages for errors or results.
+
+### `templates/index.html`
+- HTML form for file upload.
+- Displays results and error/success messages.
+- Dynamically shows word count or upload feedback.
+
+---
+
+## Getting Started
 
 ### Prerequisites
-- **Python:** The application is written in Python, so you need to have Python installed to run it.
-- **Flask:** This application uses the Flask web framework. You can install it using pip, Python's package installer.
-- **A web browser:** To interact with the application, you will need a web browser.
 
-### Exercise
+- **Python 3.7+**
+- **Flask** (Install with `pip install flask`)
+- **A modern web browser**
 
-The provided Flask web application introduces intentional vulnerabilities, including a hardcoded secret key, a reflective Cross-Site Scripting (XSS) vulnerability, a Command Injection vulnerability, and an Insecure Deserialization vulnerability, showcasing common security issues for demo purposes. These vulnerabilities demonstrate the risks of unsanitized user input, unsafe deserialization, and insecure application configuration.
+### Installation
 
-**Step 1:** Create a branch called `XSS-and-command-injection-fix`.
+1. **Clone the repository:**
+    ```sh
+    git clone https://github.com/kavyashri-as/word_counter_webappForked.git
+    cd word_counter_webappForked
+    ```
 
-**Step 2:** Add the below code to this path - app.py (Remove full code and replace)
+2. **Install dependencies:**
+    ```sh
+    pip install flask
+    ```
 
-```
-from flask import Flask, request, render_template, redirect, url_for, flash, Markup
-import os
-import subprocess  # For executing system commands (related to vulnerability)
+3. **Run the application:**
+    ```sh
+    python app.py
+    ```
+    The app will start on `localhost:5000` by default.
 
-app = Flask(__name__)
-app.secret_key = 'verysecretkey'  # Hardcoded secret key (Vulnerability #1)
+4. **Open in browser:**
+    Navigate to `http://127.0.0.1:5000/` in your web browser.
 
-@app.route('/', methods=['GET', 'POST'])
-def home():
-    if request.method == 'POST':
-        # Command Injection vulnerability (Vulnerability #3)
-        filename = request.form['filename']
-        result = subprocess.run(['cat', filename], capture_output=True, text=True)
-        flash(f"Contents of {filename}: {result.stdout}")
+---
 
-        file = request.files['file']
-        if file.filename == '':
-            flash('No selected file')
-            return redirect(request.url)
-        if file and file.filename.endswith('.txt'):
-            content = file.read().decode("utf-8") 
-            word_count = len(content.split())
-            # Reflective XSS vulnerability (Vulnerability #2)
-            flash(Markup(f"Successfully uploaded <script>alert('Your file has {word_count} words.');</script>"))
-            return redirect(url_for('home'))
+## Exercise: Identifying & Fixing Vulnerabilities
 
-    # Insecure Deserialization vulnerability (Vulnerability #4)
-    if 'user_data' in request.cookies:
-        user_data = eval(request.cookies.get('user_data'))  # Unsafe deserialization
-        flash(f"Welcome back, {user_data['username']}!")
-    return render_template('index.html', word_count=None)
+> **Note:** The provided code intentionally introduces security vulnerabilities for educational exercises.  
+> You are encouraged to identify and remediate these vulnerabilities.
 
-if __name__ == "__main__":
-    app.run(debug=True)
-```
-**Step 3:** Raise a pull request to the `main` branch.
+### Vulnerabilities Introduced
+
+1. **Hardcoded Secret Key:** Sensitive configuration should never be hardcoded in production.
+2. **Reflective Cross-Site Scripting (XSS):** User input directly rendered in output.
+3. **Command Injection:** Unsanitized user input passed to system commands.
+4. **Insecure Deserialization:** `eval` used on untrusted data.
+
+### Challenge Steps
+
+1. **Branch Creation:**  
+   Create a branch called `XSS-and-command-injection-fix`.
+
+2. **Code Replacement:**  
+   Replace all code in `app.py` with the [provided vulnerable code](#).
+
+3. **Pull Request:**  
+   Raise a pull request from your new branch to `main`, describing your fixes for these vulnerabilities.
+
+---
+
+## Contributing
+
+Contributions and fixes are welcome!  
+*Please ensure your pull requests address code correctness, security, and maintainability.*
+
+---
+
+## License
+
+This project is open-source and available under the [MIT License](LICENSE).
+
+---
+
+## Acknowledgements
+
+- Inspired by learning activities on web application security using Flask.
+- Thanks to all contributors and reviewers.
+
+---
+
+## Contact
+
+For queries or suggestions, please open an issue in this repository.
